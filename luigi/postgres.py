@@ -182,7 +182,7 @@ class PostgresTarget(luigi.Target):
                 WHERE update_id = %s
                 LIMIT 1""".format(marker_table=self.marker_table),
                            (self.update_id,)
-                           )\
+                           )
             print "umm...2"
             row = cursor.fetchone()
             print "umm...3"
