@@ -141,7 +141,12 @@ class PostgresTarget(luigi.Target):
         and the connection reset.
         Then the marker table will be created.
         """
+
+        print "touch"
+
         self.create_marker_table()
+
+        print "post create touch"
 
         if connection is None:
             # TODO: test this
@@ -171,6 +176,7 @@ class PostgresTarget(luigi.Target):
             connection.autocommit = True
         cursor = connection.cursor()
         try:
+            print "umm..."
             cursor.execute("""SELECT 1 FROM {marker_table}
                 WHERE update_id = %s
                 LIMIT 1""".format(marker_table=self.marker_table),
@@ -178,7 +184,9 @@ class PostgresTarget(luigi.Target):
                            )
             row = cursor.fetchone()
         except psycopg2.ProgrammingError as e:
+            print e
             if e.pgcode == psycopg2.errorcodes.UNDEFINED_TABLE:
+                print "undefined table"
                 row = None
             else:
                 raise
@@ -203,16 +211,22 @@ class PostgresTarget(luigi.Target):
 
         Using a separate connection since the transaction might have to be reset.
         """
+
+        print "create_marker_table"
+        print self.marker_table
+
         connection = self.connect()
         connection.autocommit = True
         cursor = connection.cursor()
         if self.use_db_timestamps:
+            print "use_db_timestamp"
             sql = """ CREATE TABLE {marker_table} (
                       update_id TEXT PRIMARY KEY,
                       target_table TEXT,
                       inserted TIMESTAMP DEFAULT NOW())
                 """.format(marker_table=self.marker_table)
         else:
+            print "don't use_db_timestamp"
             sql = """ CREATE TABLE {marker_table} (
                       update_id TEXT PRIMARY KEY,
                       target_table TEXT,
@@ -221,9 +235,12 @@ class PostgresTarget(luigi.Target):
         try:
             cursor.execute(sql)
         except psycopg2.ProgrammingError as e:
+            print "error?"
             if e.pgcode == psycopg2.errorcodes.DUPLICATE_TABLE:
+                print "already been made..."
                 pass
             else:
+                print "raise some error"
                 raise
         connection.close()
 
