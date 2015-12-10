@@ -177,19 +177,24 @@ class PostgresTarget(luigi.Target):
         cursor = connection.cursor()
         try:
             print "umm..."
+            print self.marker_table
             cursor.execute("""SELECT 1 FROM {marker_table}
                 WHERE update_id = %s
                 LIMIT 1""".format(marker_table=self.marker_table),
                            (self.update_id,)
-                           )
+                           )\
+            print "umm...2"
             row = cursor.fetchone()
+            print "umm...3"
         except psycopg2.ProgrammingError as e:
             print e
             if e.pgcode == psycopg2.errorcodes.UNDEFINED_TABLE:
                 print "undefined table"
                 row = None
             else:
+                print "umm...4"
                 raise
+        print "umm...5"
         return row is not None
 
     def connect(self):
