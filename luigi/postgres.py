@@ -195,6 +195,7 @@ class PostgresTarget(luigi.Target):
                 print "umm...4"
                 raise
         print "umm...5"
+        print row
         return row is not None
 
     def connect(self):
